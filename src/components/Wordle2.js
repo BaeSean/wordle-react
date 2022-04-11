@@ -2,18 +2,18 @@ import React, { useState, useRef, useEffect } from "react";
 import $ from "jquery"
 
 const Wordle = () => {
-    const [question, setQuestion] = useState("");
-    const [wordCount, setWordCount] = useState(5);
-    const [stepCount, setStepCount] = useState(6);
-    const [inputArr, setInputArr] = useState(Array.from({length : wordCount*stepCount}, (n, i) => i));
+    let question = "";
+    let wordCount = 5;
+    let stepCount = 6;
+    let inputArr = Array.from({length : wordCount*stepCount}, (n, i) => i);
     
 
-    const [char, setChar] = useState('');
-    const [word, setWord] = useState("");
-    const [step, setStep] = useState(0);
+    let char = '';
+    let word = "";
+    let step = 0;
 
 
-    const [refIndex, setRefIndex] = useState(0);
+    let refIndex = 0;
     const wordInput = useRef([]);
 
     // const onChange = (e) => {
@@ -32,8 +32,8 @@ const Wordle = () => {
         wordInput.current[refIndex].focus();
     }
     const onReset = (n) => {
-        setWord("");
-        setChar('');
+        word = "";
+        char = '';
     }
 
     const handleKeyDown = (event) => {
@@ -42,23 +42,23 @@ const Wordle = () => {
         let is5word = false;
 
 
-        if (pressedKey !== "Backspace" && pressedKey !== "Enter" ) {//&& refIndex%6 !== 5
-            setRefIndex(refIndex + 1)
+        if (pressedKey !== "Backspace" && pressedKey !== "Enter" && refIndex%6 !== 5) {
+            refIndex++;
         }
-        // else if(refIndex%6 === 5){
-        //     if(pressedKey !== "Enter"){
-        //         console.log("이미 5글자 word임");
-        //         is5word = true;
-        //     }     
-        // }
+        else if(refIndex%6 === 5){
+            if(pressedKey !== "Enter"){
+                console.log("이미 5글자 word임");
+                is5word = true;
+            }           
+        }
 
 
         if (pressedKey === "Backspace") {
-            setChar("Backspace");
-            setWord(word.slice(0, -1));
+            char = "Backspace";
+            word = word.slice(0, -1);
 
             if (refIndex > 0) {
-                setRefIndex(refIndex - 1);
+                refIndex--;
                 wordInput.current[refIndex - 1].focus()
             }
 
@@ -71,13 +71,12 @@ const Wordle = () => {
         }
         else if((65 <= pressedKeyCode && pressedKeyCode <= 90) || (97 <= pressedKeyCode && pressedKeyCode <= 122)){
             if(!is5word){
-                setChar(pressedKey);
-                setWord(word + pressedKey)
+                char = pressedKey;
+                word = word + pressedKey;
             }
             else{
-                setChar(pressedKey);
-                wordInput.current[refIndex - 1].focus()
-
+                char = pressedKey;
+                wordInput.current[refIndex - 1].focus();
             }
         }
         
@@ -94,7 +93,7 @@ const Wordle = () => {
         else {
             console.log("XXX");
             onReset();
-            setStep(step+1);
+            step++;
 
             if (step >= 5)
                 console.log("종료")
@@ -102,7 +101,7 @@ const Wordle = () => {
     }
 
     useEffect(() => {
-        setQuestion("qwert");
+        question = "qwert";
         wordInput.current[refIndex].focus();
 
         console.log("init")
@@ -181,48 +180,3 @@ export default Wordle;
 
 
 
-
-// else if (event.key === "Q" || event.key === "q") {
-//     setChar("q");
-//     setWord(word + "q")
-// }
-// else if (event.key === "W" || event.key === "w") {
-//     setChar("w");
-//     setWord(word + "w")
-// }
-// else if (event.key === "E" || event.key === "e") {
-//     setChar("e");
-//     setWord(word + "e")
-// }
-// else if (event.key === "R" || event.key === "r") {
-//     setChar("r");
-//     setWord(word + "r")
-// }
-// else if (event.key === "T" || event.key === "t") {
-//     setChar("t");
-//     setWord(word + "t")
-// }
-// else if (event.key === "Y" || event.key === "y") {
-//     setChar("y");
-//     setWord(word + "y")
-// }
-// else if (event.key === "U" || event.key === "u") {
-//     setChar("u");
-//     setWord(word + "u")
-// }
-// else if (event.key === "I" || event.key === "i") {
-//     setChar("i");
-//     setWord(word + "i")
-// }
-// else if (event.key === "O" || event.key === "o") {
-//     setChar("o");
-//     setWord(word + "o")
-// }
-// else if (event.key === "P" || event.key === "p") {
-//     setChar("p");
-//     setWord(word + "p")
-// }
-// else if (event.key === "A" || event.key === "a") {
-//     setChar("a");
-//     setWord(word + "a")
-// }
