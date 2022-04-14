@@ -4,7 +4,7 @@ import $ from "jquery"
 const Wordle = () => {
     const [question, setQuestion] = useState("");
     const [wordCount, setWordCount] = useState(5);
-    const [stepCount, setStepCount] = useState(6);
+    const [stepCount, setStepCount] = useState(2);
     const [inputArr, setInputArr] = useState(Array.from({length : wordCount*stepCount}, (n, i) => i));
     
 
@@ -15,6 +15,7 @@ const Wordle = () => {
 
     const [refIndex, setRefIndex] = useState(0);
     const wordInput = useRef([]);
+    const nameInput = useRef();
 
     // const onChange = (e) => {
     //     if (/[a-z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g.test(this.value)) { //한글 막기
@@ -31,9 +32,8 @@ const Wordle = () => {
     const onFocus = () => {
         wordInput.current[refIndex].focus();
     }
-    const onReset = (n) => {
+    const onReset = () => {
         setWord("");
-        setChar('');
     }
 
     const handleKeyDown = (event) => {
@@ -41,29 +41,31 @@ const Wordle = () => {
         const pressedKeyCode = pressedKey.charCodeAt(0)
         let is5word = false;
 
+        if(word.length === 5)
+            is5word = true;
 
-        if (pressedKey !== "Backspace" && pressedKey !== "Enter" ) {//&& refIndex%6 !== 5
-            setRefIndex(refIndex + 1)
+
+        if (pressedKey !== "Backspace" && pressedKey !== "Enter" && !is5word) {//&& refIndex%6 !== 5
+            if(refIndex < wordCount*stepCount)
+                setRefIndex(refIndex + 1)
         }
-        // else if(refIndex%6 === 5){
-        //     if(pressedKey !== "Enter"){
-        //         console.log("이미 5글자 word임");
-        //         is5word = true;
-        //     }     
-        // }
+        else if(refIndex%6 === 5){
+            if(pressedKey !== "Enter" || pressedKey !== "Backspace"){
+                console.log("이미 5글자 word임");
+            }     
+            
+        }
 
 
         if (pressedKey === "Backspace") {
             setChar("Backspace");
             setWord(word.slice(0, -1));
 
-            if (refIndex > 0) {
+            if (refIndex > 0 && word.length !== 0 ) {
+                // if(refIndex <= wordCount*stepCount-1)
+                wordInput.current[refIndex - 1].focus() // Front focus move
                 setRefIndex(refIndex - 1);
-                wordInput.current[refIndex - 1].focus()
             }
-
-            if(refIndex%6 !== 5)
-                is5word = false;
         }
         else if (pressedKey === "Enter") {
             isCorret();
@@ -76,7 +78,7 @@ const Wordle = () => {
             }
             else{
                 setChar(pressedKey);
-                wordInput.current[refIndex - 1].focus()
+                wordInput.current[refIndex-1].focus()
 
             }
         }
@@ -87,17 +89,21 @@ const Wordle = () => {
     const isCorret = () => {
         if (word === question) {
             console.log("정답");
+            nameInput.current.focus();
         }
-        else if (word.length < 5) {
+        else if (word.length < wordCount) {
             console.log("5글자 단어 필요");
         }
         else {
             console.log("XXX");
-            onReset();
-            setStep(step+1);
-
-            if (step >= 5)
+            if (step >= stepCount-1){
                 console.log("종료")
+                nameInput.current.focus();
+            }
+            else{
+                setStep(step+1);
+                onReset();
+            }
         }
     }
 
@@ -112,7 +118,7 @@ const Wordle = () => {
         console.log(step, char, word, refIndex);
         wordInput.current[refIndex].focus();
 
-    }, [step, char, word, refIndex])
+    }, [step, refIndex])
 
 
     return (
@@ -132,12 +138,13 @@ const Wordle = () => {
                     let n = parseInt(a);
                     return (
                         <>
+                            { (n%5 > 0 && n !== 0) ? null : <p/> }
                             <input key={index} type="text" className="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[n] = el)} />
-                            { (n%5>0) ? null : <br/> }
                         </>
                     )
                 })
             }
+            <input type="hidden" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[wordCount*stepCount] = el)} />
 
 
             <div>
@@ -169,8 +176,10 @@ const Wordle = () => {
                 <button className="bKey">B</button>
                 <button className="nKey">N</button>
                 <button className="mKey">M</button>
-
             </div>
+
+            <input type="text"  placeholder="Your name!" ref={nameInput} />
+
         </div>
     );
 }
