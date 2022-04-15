@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import $ from "jquery"
+import 'bootstrap/dist/css/bootstrap.css';
+import "../style.css"
+
 
 const Wordle = () => {
     const [question, setQuestion] = useState("");
     const [wordCount, setWordCount] = useState(5);
     const [stepCount, setStepCount] = useState(2);
     const [inputArr, setInputArr] = useState(Array.from({length : wordCount*stepCount}, (n, i) => i));
-    
+    let answerArr;
 
     const [char, setChar] = useState('');
     const [word, setWord] = useState("");
@@ -96,6 +99,8 @@ const Wordle = () => {
         }
         else {
             console.log("XXX");
+            checkAnswer();
+
             if (step >= stepCount-1){
                 console.log("종료")
                 nameInput.current.focus();
@@ -106,6 +111,50 @@ const Wordle = () => {
             }
         }
     }
+
+
+    const checkAnswer = () => {
+        answerArr = new Array(wordCount);
+
+        //strike 체크
+        for(let i = 0; i < wordCount; i++){
+            if(word[i] === question[i]){
+                answerArr[i] = 2;
+            }
+        }
+        
+        //out 체크
+        for(let i = 0; i < wordCount; i++){
+
+            if(answerArr[i] !== 2){
+                let isOut = true;
+        
+                for(let j = 0; j < wordCount; j++){
+                    if(word[i] === question[j] && i !== j){
+                        isOut = false;
+                    }
+                }
+
+                if(isOut){
+                    answerArr[i] = 0;
+                }
+            }
+        }
+
+        //ball 체크
+        for(let i = 0; i < wordCount; i++){
+            if(!(answerArr[i] >= 0)){
+                answerArr[i] = 1;
+            }
+        }
+        console.log(answerArr);
+    }
+
+
+    const handleTagColor = () => {
+        
+    }
+
 
     useEffect(() => {
         setQuestion("qwert");
@@ -148,34 +197,34 @@ const Wordle = () => {
 
 
             <div>
-                <button className="qKey">Q</button>
-                <button className="wKey">W</button>
-                <button className="eKey">E</button>
-                <button className="rKey">R</button>
-                <button className="tKey">T</button>
-                <button className="yKey">Y</button>
-                <button className="uKey">U</button>
-                <button className="iKey">I</button>
-                <button className="oKey">O</button>
-                <button className="pKey">P</button>
-                <button className="backKey">⏪</button> <br />
-                <button className="aKey">A</button>
-                <button className="sKey">S</button>
-                <button className="dKey">D</button>
-                <button className="fKey">F</button>
-                <button className="gKey">G</button>
-                <button className="hKey">H</button>
-                <button className="jKey">J</button>
-                <button className="kKey">K</button>
-                <button className="lKey">L</button>
-                <button className="enterKey">Enter</button> <br />
-                <button className="zKey">Z</button>
-                <button className="xKey">X</button>
-                <button className="cKey">C</button>
-                <button className="vKey">V</button>
-                <button className="bKey">B</button>
-                <button className="nKey">N</button>
-                <button className="mKey">M</button>
+                <button className="q" class="btn btn-secondary">Q</button>
+                <button className="w" class="btn btn-secondary">W</button>
+                <button className="e" class="btn btn-secondary">E</button>
+                <button className="r" class="btn btn-secondary">R</button>
+                <button className="t" class="btn btn-secondary">T</button>
+                <button className="y" class="btn btn-secondary">Y</button>
+                <button className="u" class="btn btn-secondary">U</button>
+                <button className="i" class="btn btn-secondary">I</button>
+                <button className="o" class="btn btn-secondary">O</button>
+                <button className="p" class="btn btn-secondary">P</button>
+                <button className="back" class="btn btn-secondary">⏪</button> <br />
+                <button className="a" class="btn btn-secondary">A</button>
+                <button className="s" class="btn btn-secondary">S</button>
+                <button className="d" class="btn btn-secondary">D</button>
+                <button className="f" class="btn btn-secondary">F</button>
+                <button className="g" class="btn btn-secondary">G</button>
+                <button className="h" class="btn btn-secondary">H</button>
+                <button className="j" class="btn btn-secondary">J</button>
+                <button className="k" class="btn btn-secondary">K</button>
+                <button className="l" class="btn btn-secondary">L</button>
+                <button className="enter" class="btn btn-secondary">Enter</button> <br />
+                <button className="z" class="btn btn-secondary">Z</button>
+                <button className="x" class="btn btn-secondary">X</button>
+                <button className="c" class="btn btn-secondary">C</button>
+                <button className="v" class="btn btn-secondary">V</button>
+                <button className="b" class="btn btn-secondary">B</button>
+                <button className="n" class="btn btn-secondary">N</button>
+                <button className="m" class="btn btn-secondary">M</button>
             </div>
 
             <input type="text"  placeholder="Your name!" ref={nameInput} />
