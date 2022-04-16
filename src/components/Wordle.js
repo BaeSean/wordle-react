@@ -5,19 +5,21 @@ import "../style.css"
 
 
 const Wordle = () => {
-//base data
+    //base data
     const [question, setQuestion] = useState("");
     const [wordCount, setWordCount] = useState(5);
     const [stepCount, setStepCount] = useState(3);
-    const [inputArr, setInputArr] = useState(Array.from({length : wordCount*stepCount}, (n, i) => i));
+    const [inputArr, setInputArr] = useState(Array.from({ length: wordCount * stepCount }, (n, i) => i));
     let answerArr;
 
-//question data
+    //question data
     const [char, setChar] = useState('');
     const [word, setWord] = useState("");
     const [step, setStep] = useState(0);
+    let inputColor = { backgroundColor: "#808384", };
+    let buttonColor = { backgroundColor: "#808384", };
 
-//ref data
+    //ref data
     const [refIndex, setRefIndex] = useState(0);
     const wordInput = useRef([]);
     const nameInput = useRef();
@@ -34,11 +36,11 @@ const Wordle = () => {
     //         this.value = "";
     //     }
     // }
-    
+
     const onFocus = () => {
-        if(endGame) 
+        if (endGame)
             nameInput.current.focus();
-        else 
+        else
             wordInput.current[refIndex].focus();
     }
     const onReset = () => {
@@ -46,50 +48,52 @@ const Wordle = () => {
     }
 
     const handleKeyDown = (event) => {
-        const pressedKey = event.key;
+        const pressedKey = event.key.toUpperCase();
         const pressedKeyCode = pressedKey.charCodeAt(0)
         let is5word = false;
 
-        if(word.length === 5)
+        if (word.length === 5)
             is5word = true;
 
-        if (pressedKey !== "Backspace" && pressedKey !== "Enter" && !is5word) {//&& refIndex%6 !== 5
-            if(refIndex < wordCount*stepCount)
+        if (pressedKey !== "BACKSPACE" && pressedKey !== "ENTER" && !is5word) {//&& refIndex%6 !== 5
+            if (refIndex < wordCount * stepCount)
                 setRefIndex(refIndex + 1)
         }
-        else if(refIndex%5 === 0){
-            if(pressedKey !== "Enter" && pressedKey !== "Backspace"){
+        else if (refIndex % 5 === 0) {
+            if (pressedKey !== "ENTER" && pressedKey !== "BACKSPACE") {
                 console.log("이미 5글자 word임");
-            }     
+            }
         }
 
 
-        if (pressedKey === "Backspace") {
-            setChar("Backspace");
+        if (pressedKey === "BACKSPACE") {
+            setChar("BACKSPACE");
             setWord(word.slice(0, -1));
 
-            if (refIndex > 0 && word.length !== 0 ) {
+            if (refIndex > 0 && word.length !== 0) {
                 wordInput.current[refIndex - 1].focus() // Front focus move
                 setRefIndex(refIndex - 1);
+
+                //click시 input value 삭제필요 (동기화가 안되서 사용)
+                const inputIndex = refIndex - 1;
+                $("#input" + inputIndex).val("");
+
             }
 
-//click시 input value 삭제필요 (동기화가 안되서 사용)
-            const inputIndex = refIndex-1;
-            $("#input" + inputIndex).val("");
         }
-        else if (pressedKey === "Enter") {
+        else if (pressedKey === "ENTER") {
             isCorret();
             // nameInput.current.blur();
         }
-        else if((65 <= pressedKeyCode && pressedKeyCode <= 90) || (97 <= pressedKeyCode && pressedKeyCode <= 122)){
-            if(!is5word){
+        else if ((65 <= pressedKeyCode && pressedKeyCode <= 90)) {
+            if (!is5word) {
                 setChar(pressedKey);
                 setWord(word + pressedKey);
                 $("#input" + refIndex).val(pressedKey);
             }
-            else{
+            else {
                 setChar(pressedKey);
-                wordInput.current[refIndex-1].focus();
+                wordInput.current[refIndex - 1].focus();
             }
         }
     }
@@ -97,21 +101,22 @@ const Wordle = () => {
 
     const handleClick = (event) => {
         event.preventDefault();
-        const clickedBtn = {key:event.target.id}
-        
-        if(endGame){
+        const clickedBtn = { key: event.target.id }
+
+        if (endGame) {
+            //Front Input 변경
             let text = $("#nameInput").val();
 
-            if(clickedBtn.key === "Backspace")
-                text = text.slice(0,-1);
-            else if(clickedBtn.key !== "Enter")
+            if (clickedBtn.key === "BACKSPACE")
+                text = text.slice(0, -1);
+            else if (clickedBtn.key !== "ENTER")
                 text = text + clickedBtn.key;
 
             $("#nameInput").val(text);
-            
+
             return;
-        } 
-        else{
+        }
+        else {
             handleKeyDown(clickedBtn);
         }
     }
@@ -119,8 +124,38 @@ const Wordle = () => {
 
     const handleTagColor = () => {
         answerArr.map((color, index) => {
-            let inputIndex = step * wordCount * index;
+            let inputIndex = step * wordCount + index;
+            const strike = "#538d4e";
+            const ball = "#b49f3a"
+            const out = "#3a3a3c"
 
+            let key = $("#input" + inputIndex).val();
+            let targetColor = rgbToHex($("#" + key).css("backgroundColor"));
+
+
+            if (color === 2) { //strike
+                inputColor = { backgroundColor: strike };
+                buttonColor = { backgroundColor: strike };
+            }
+            else if (color === 1) { //ball
+                inputColor = { backgroundColor: ball };
+                if (targetColor !== strike)
+                    buttonColor = { backgroundColor: ball };
+                else
+                    buttonColor = { backgroundColor: targetColor };
+            }
+            else if (color === 0) { //out
+                inputColor = { backgroundColor: out };
+                if (targetColor !== strike || targetColor !== ball)
+                    buttonColor = { backgroundColor: out };
+                else
+                    buttonColor = { backgroundColor: targetColor };
+            }
+
+            //Input tag Color
+            $("#input" + inputIndex).css(inputColor);
+            //Button tag color
+            $("#" + key).css(buttonColor);
         })
     }
 
@@ -128,7 +163,7 @@ const Wordle = () => {
     const handleEndGame = () => {
         nameInput.current.focus();
         endGame = true;
-        
+
         $("#nameInput").val(question);
     }
 
@@ -136,6 +171,8 @@ const Wordle = () => {
     const isCorret = () => {
         if (word === question) {
             console.log("정답");
+            checkAnswer();
+            handleTagColor();
             handleEndGame();
         }
         else if (word.length < wordCount) {
@@ -144,13 +181,14 @@ const Wordle = () => {
         else {
             console.log("XXX");
             checkAnswer();
+            handleTagColor();
 
-            if (step >= stepCount-1){
+            if (step >= stepCount - 1) {
                 console.log("종료")
                 handleEndGame();
             }
-            else{
-                setStep(step+1);
+            else {
+                setStep(step + 1);
                 onReset();
             }
         }
@@ -161,33 +199,32 @@ const Wordle = () => {
         answerArr = new Array(wordCount);
 
         //strike 체크
-        for(let i = 0; i < wordCount; i++){
-            if(word[i] === question[i]){
+        for (let i = 0; i < wordCount; i++) {
+            if (word[i] === question[i]) {
                 answerArr[i] = 2;
             }
         }
-        
-        //out 체크
-        for(let i = 0; i < wordCount; i++){
 
-            if(answerArr[i] !== 2){
+        //out 체크
+        for (let i = 0; i < wordCount; i++) {
+            if (answerArr[i] !== 2) {
                 let isOut = true;
-        
-                for(let j = 0; j < wordCount; j++){
-                    if(word[i] === question[j] && i !== j){
+
+                for (let j = 0; j < wordCount; j++) {
+                    if (word[i] === question[j] && i !== j & answerArr[j] !== 2) {
                         isOut = false;
                     }
                 }
 
-                if(isOut){
+                if (isOut) {
                     answerArr[i] = 0;
                 }
             }
         }
 
         //ball 체크
-        for(let i = 0; i < wordCount; i++){
-            if(!(answerArr[i] >= 0)){
+        for (let i = 0; i < wordCount; i++) {
+            if (!(answerArr[i] >= 0)) {
                 answerArr[i] = 1;
             }
         }
@@ -196,7 +233,7 @@ const Wordle = () => {
 
 
     useEffect(() => {
-        setQuestion("bonus");
+        setQuestion("BONUS");
         wordInput.current[refIndex].focus();
 
         console.log("init")
@@ -209,11 +246,33 @@ const Wordle = () => {
     }, [step, refIndex])
 
 
+    const rgbToHex = (rgbType) => {
+        var rgb = rgbType.replace(/[^%,.\d]/g, "").split(",");
+
+        rgb.forEach(function (str, x, arr) {
+
+            /* 컬러값이 "%"일 경우, 변환하기. */
+            if (str.indexOf("%") > -1) str = Math.round(parseFloat(str) * 2.55);
+
+            /* 16진수 문자로 변환하기. */
+            str = parseInt(str, 10).toString(16);
+            if (str.length === 1) str = "0" + str;
+
+            arr[x] = str;
+        });
+
+        return "#" + rgb.join("");
+    }
+
     return (
         <div className="main" onClick={onFocus}> {/* 클릭 방지 (Focus 고정) */}
-            <h1>Wordle</h1>
+            <div>
+                <h1>Wordle</h1>
+            </div>
 
-            {/* <div>
+
+            <div>
+                {/* <div>
                 <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[0] = el)} />
                 <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[1] = el)} />
                 <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[2] = el)} />
@@ -221,53 +280,54 @@ const Wordle = () => {
                 <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[4] = el)} />
             </div> */}
 
-            {
-                inputArr.map((a, index) => {
-                    let n = parseInt(a);
-                    let inputId = "input" + n
+                {
+                    inputArr.map((a, index) => {
+                        let n = parseInt(a);
+                        let inputId = "input" + n
 
-                    return (
-                        <>
-                            { (n%5 > 0 && n !== 0) ? null : <p/> }
-                            <input key={index} id={inputId} type="text" className="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[n] = el)} />
-                        </>
-                    )
-                })
-            }
-            <input type="hidden" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[wordCount*stepCount] = el)} />
+                        return (
+                            <>
+                                {(n % 5 > 0 && n !== 0) ? null : <p />}
+                                <input style={inputColor} key={index} id={inputId} pattern="[A-Za-z]+" type="text" className="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[n] = el)} />
+                            </>
+                        )
+                    })
+                }
+                <input type="hidden" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[wordCount * stepCount] = el)} />
+            </div>
 
 
             <div>
-                <button id="q" onClick={handleClick} class="btn btn-secondary">Q</button>
-                <button id="w" onClick={handleClick} class="btn btn-secondary">W</button>
-                <button id="e" onClick={handleClick} class="btn btn-secondary">E</button>
-                <button id="r" onClick={handleClick} class="btn btn-secondary">R</button>
-                <button id="t" onClick={handleClick} class="btn btn-secondary">T</button>
-                <button id="y" onClick={handleClick} class="btn btn-secondary">Y</button>
-                <button id="u" onClick={handleClick} class="btn btn-secondary">U</button>
-                <button id="i" onClick={handleClick} class="btn btn-secondary">I</button>
-                <button id="o" onClick={handleClick} class="btn btn-secondary">O</button>
-                <button id="p" onClick={handleClick} class="btn btn-secondary">P</button>
-                <button id="Backspace" onClick={handleClick} class="btn btn-secondary">🔙</button> <br />
-               
-                <button id="a" onClick={handleClick} class="btn btn-secondary">A</button>
-                <button id="s" onClick={handleClick} class="btn btn-secondary">S</button>
-                <button id="d" onClick={handleClick} class="btn btn-secondary">D</button>
-                <button id="f" onClick={handleClick} class="btn btn-secondary">F</button>
-                <button id="g" onClick={handleClick} class="btn btn-secondary">G</button>
-                <button id="h" onClick={handleClick} class="btn btn-secondary">H</button>
-                <button id="j" onClick={handleClick} class="btn btn-secondary">J</button>
-                <button id="k" onClick={handleClick} class="btn btn-secondary">K</button>
-                <button id="l" onClick={handleClick} class="btn btn-secondary">L</button>
-                <button id="Enter" onClick={handleClick} class="btn btn-secondary">Enter</button> <br />
-                
-                <button id="z" onClick={handleClick} class="btn btn-secondary">Z</button>
-                <button id="x" onClick={handleClick} class="btn btn-secondary">X</button>
-                <button id="c" onClick={handleClick} class="btn btn-secondary">C</button>
-                <button id="v" onClick={handleClick} class="btn btn-secondary">V</button>
-                <button id="b" onClick={handleClick} class="btn btn-secondary">B</button>
-                <button id="n" onClick={handleClick} class="btn btn-secondary">N</button>
-                <button id="m" onClick={handleClick} class="btn btn-secondary">M</button>
+                <button id="Q" onClick={handleClick} style={buttonColor} class="btn btn-secondary">Q</button>
+                <button id="W" onClick={handleClick} style={buttonColor} class="btn btn-secondary">W</button>
+                <button id="E" onClick={handleClick} style={buttonColor} class="btn btn-secondary">E</button>
+                <button id="R" onClick={handleClick} style={buttonColor} class="btn btn-secondary">R</button>
+                <button id="T" onClick={handleClick} style={buttonColor} class="btn btn-secondary">T</button>
+                <button id="Y" onClick={handleClick} style={buttonColor} class="btn btn-secondary">Y</button>
+                <button id="U" onClick={handleClick} style={buttonColor} class="btn btn-secondary">U</button>
+                <button id="I" onClick={handleClick} style={buttonColor} class="btn btn-secondary">I</button>
+                <button id="O" onClick={handleClick} style={buttonColor} class="btn btn-secondary">O</button>
+                <button id="P" onClick={handleClick} style={buttonColor} class="btn btn-secondary">P</button>
+                <button id="BACKSPACE" onClick={handleClick} style={buttonColor} class="btn btn-secondary">🔙</button> <br />
+
+                <button id="A" onClick={handleClick} style={buttonColor} class="btn btn-secondary">A</button>
+                <button id="S" onClick={handleClick} style={buttonColor} class="btn btn-secondary">S</button>
+                <button id="D" onClick={handleClick} style={buttonColor} class="btn btn-secondary">D</button>
+                <button id="F" onClick={handleClick} style={buttonColor} class="btn btn-secondary">F</button>
+                <button id="G" onClick={handleClick} style={buttonColor} class="btn btn-secondary">G</button>
+                <button id="H" onClick={handleClick} style={buttonColor} class="btn btn-secondary">H</button>
+                <button id="J" onClick={handleClick} style={buttonColor} class="btn btn-secondary">J</button>
+                <button id="K" onClick={handleClick} style={buttonColor} class="btn btn-secondary">K</button>
+                <button id="L" onClick={handleClick} style={buttonColor} class="btn btn-secondary">L</button>
+                <button id="ENTER" onClick={handleClick} style={buttonColor} class="btn btn-secondary">ENTER</button> <br />
+
+                <button id="Z" onClick={handleClick} style={buttonColor} class="btn btn-secondary">Z</button>
+                <button id="X" onClick={handleClick} style={buttonColor} class="btn btn-secondary">X</button>
+                <button id="C" onClick={handleClick} style={buttonColor} class="btn btn-secondary">C</button>
+                <button id="V" onClick={handleClick} style={buttonColor} class="btn btn-secondary">V</button>
+                <button id="B" onClick={handleClick} style={buttonColor} class="btn btn-secondary">B</button>
+                <button id="N" onClick={handleClick} style={buttonColor} class="btn btn-secondary">N</button>
+                <button id="M" onClick={handleClick} style={buttonColor} class="btn btn-secondary">M</button>
             </div>
 
             <input type="text" id="nameInput" placeholder="Your name!" ref={nameInput} />
@@ -277,53 +337,3 @@ const Wordle = () => {
 }
 
 export default Wordle;
-
-
-
-
-
-
-// else if (event.key === "Q" || event.key === "q") {
-//     setChar("q");
-//     setWord(word + "q")
-// }
-// else if (event.key === "W" || event.key === "w") {
-//     setChar("w");
-//     setWord(word + "w")
-// }
-// else if (event.key === "E" || event.key === "e") {
-//     setChar("e");
-//     setWord(word + "e")
-// }
-// else if (event.key === "R" || event.key === "r") {
-//     setChar("r");
-//     setWord(word + "r")
-// }
-// else if (event.key === "T" || event.key === "t") {
-//     setChar("t");
-//     setWord(word + "t")
-// }
-// else if (event.key === "Y" || event.key === "y") {
-//     setChar("y");
-//     setWord(word + "y")
-// }
-// else if (event.key === "U" || event.key === "u") {
-//     setChar("u");
-//     setWord(word + "u")
-// }
-// else if (event.key === "I" || event.key === "i") {
-//     setChar("i");
-//     setWord(word + "i")
-// }
-// else if (event.key === "O" || event.key === "o") {
-//     setChar("o");
-//     setWord(word + "o")
-// }
-// else if (event.key === "P" || event.key === "p") {
-//     setChar("p");
-//     setWord(word + "p")
-// }
-// else if (event.key === "A" || event.key === "a") {
-//     setChar("a");
-//     setWord(word + "a")
-// }

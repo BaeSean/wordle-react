@@ -1,33 +1,42 @@
-.main{
-    text-align: center;
+div {
+    margin-bottom: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+
 }
 
-.wordInput{
-    margin: 10px;
-    width: 80px;
-    height: 80px;
+h1 {
+    color: white;
     font-size: 50px;
-    text-align: center;
-
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 button {
     margin: 5px;
     width: 40px;
 }
-/* 
-#a {
-    margin-left: 35px;
+
+.main {
+    text-align: center;
+    background-color: #121213;
+    width: 100%;
+    height: 100vh;
 }
 
-#m {
-    margin-right: 100px;
-} */
+.wordInput {
+    margin: 5px;
+    width: 80px;
+    height: 80px;
+    font-size: 40px;
+    text-align: center;
+    color: white;
+    caret-color: #808384;       /* 커서색상 변경 */
+    /* ime-mode:disable; */
+    }
 
-#Enter {
-    width: 70px;
-}
+    #ENTER {
+        width: 70px;
+    }
 
-#Backspace {
-    width: 60px;
-}
+    #BACKSPACE {
+        width: 60px;
+    }
