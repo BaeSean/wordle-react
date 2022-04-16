@@ -1,3 +1,33 @@
+.main{
+    text-align: center;
+}
+
+.wordInput{
+    margin: 10px;
+    width: 80px;
+    height: 80px;
+    font-size: 50px;
+    text-align: center;
+
+}
+
 button {
     margin: 5px;
+    width: 40px;
+}
+/* 
+#a {
+    margin-left: 35px;
+}
+
+#m {
+    margin-right: 100px;
+} */
+
+#Enter {
+    width: 70px;
+}
+
+#Backspace {
+    width: 60px;
 }
