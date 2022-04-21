@@ -16,7 +16,7 @@ const Wordle = () => {
     const [char, setChar] = useState('');
     const [word, setWord] = useState("");
     const [step, setStep] = useState(0);
-    let inputColor = { backgroundColor: "#808384", };
+    let inputColor = { backgroundColor: "#707070", };
     let buttonColor = { backgroundColor: "#808384", };
 
     //ref data
@@ -25,17 +25,10 @@ const Wordle = () => {
     const nameInput = useRef();
     let endGame = false;
 
-    // const onChange = (e) => {
-    //     if (/[a-z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g.test(this.value)) { //한글 막기
-    //         e.preventDefault();
-    //         this.value = "";
-    //     } else if (e.which != 8 && e.which != 0 //영문 e막기
-    //         && e.which < 48 || e.which > 57    //숫자키만 받기
-    //         && e.which < 96 || e.which > 105) { //텐키 받기
-    //         e.preventDefault();
-    //         this.value = "";
-    //     }
-    // }
+
+    const onChange = (e) => {
+        e.target.value = e.target.value.replace(/[^A-Za-z]/ig, '');
+    }
 
     const onFocus = () => {
         if (endGame)
@@ -43,23 +36,53 @@ const Wordle = () => {
         else
             wordInput.current[refIndex].focus();
     }
+    const onFocus_1 = () => {
+        if (endGame)
+            nameInput.current.focus();
+        else {
+            if (refIndex === 0)
+                setTimeout(function () { wordInput.current[0].focus(); }, 0.1);
+                //front의 focus가 안바껴서 timeout 사용...
+            else
+                wordInput.current[refIndex - 1].focus();
+        }
+    }
+
     const onReset = () => {
         setWord("");
     }
 
+    //Pysical keyboard press
     const handleKeyDown = (event) => {
         const pressedKey = event.key.toUpperCase();
         const pressedKeyCode = pressedKey.charCodeAt(0)
         let is5word = false;
 
-        if (word.length === 5)
+        if (word.length === wordCount)
             is5word = true;
 
-        if (pressedKey !== "BACKSPACE" && pressedKey !== "ENTER" && !is5word) {//&& refIndex%6 !== 5
+        //Alphabet + Enter + Backspace 이외 입력 막기
+        let pressedKeyCodeSum = 0;
+        for (let i = 0; i < pressedKey.length; i++) {
+            pressedKeyCodeSum = pressedKeyCodeSum + pressedKey[i].charCodeAt(0);
+        }
+        if (90 < pressedKeyCodeSum || pressedKeyCodeSum < 65) {
+            if (pressedKey !== "BACKSPACE" && pressedKey !== "ENTER") {
+                onFocus();
+
+                if (pressedKeyCodeSum === 215)
+                    onFocus_1();
+
+                return;
+            }
+        }
+
+        //Alphabet 입력 시
+        if (pressedKey !== "BACKSPACE" && pressedKey !== "ENTER" && !is5word) {
             if (refIndex < wordCount * stepCount)
                 setRefIndex(refIndex + 1)
         }
-        else if (refIndex % 5 === 0) {
+        else if (refIndex % 5 === 0 && refIndex !== 0) {
             if (pressedKey !== "ENTER" && pressedKey !== "BACKSPACE") {
                 console.log("이미 5글자 word임");
             }
@@ -98,7 +121,7 @@ const Wordle = () => {
         }
     }
 
-
+//Keyboard button click
     const handleClick = (event) => {
         event.preventDefault();
         const clickedBtn = { key: event.target.id }
@@ -121,7 +144,7 @@ const Wordle = () => {
         }
     }
 
-
+//input + button tag color change
     const handleTagColor = () => {
         answerArr.map((color, index) => {
             let inputIndex = step * wordCount + index;
@@ -233,7 +256,7 @@ const Wordle = () => {
 
 
     useEffect(() => {
-        setQuestion("BONUS");
+        setQuestion("UUUQQ");
         wordInput.current[refIndex].focus();
 
         console.log("init")
@@ -245,7 +268,7 @@ const Wordle = () => {
 
     }, [step, refIndex])
 
-
+//rgb to hexCode
     const rgbToHex = (rgbType) => {
         var rgb = rgbType.replace(/[^%,.\d]/g, "").split(",");
 
@@ -272,14 +295,6 @@ const Wordle = () => {
 
 
             <div>
-                {/* <div>
-                <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[0] = el)} />
-                <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[1] = el)} />
-                <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[2] = el)} />
-                <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[3] = el)} />
-                <input type="text" id="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[4] = el)} />
-            </div> */}
-
                 {
                     inputArr.map((a, index) => {
                         let n = parseInt(a);
@@ -287,8 +302,8 @@ const Wordle = () => {
 
                         return (
                             <>
-                                {(n % 5 > 0 && n !== 0) ? null : <p />}
-                                <input style={inputColor} key={index} id={inputId} pattern="[A-Za-z]+" type="text" className="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[n] = el)} />
+                                {(n % wordCount > 0 && n !== 0) ? null : <p />}
+                                <input onInput={onChange} style={inputColor} key={index} id={inputId} type="text" className="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[n] = el)} />
                             </>
                         )
                     })

@@ -29,9 +29,11 @@ button {
     font-size: 40px;
     text-align: center;
     color: white;
-    caret-color: #808384;       /* 커서색상 변경 */
-    /* ime-mode:disable; */
-    }
+    caret-color: #707070; 
+    border-radius: 15%;
+    border: 1px;
+    outline: none;
+}
 
     #ENTER {
         width: 70px;
