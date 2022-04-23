@@ -23,40 +23,55 @@ button {
 }
 
 .wordInput {
-    margin: 5px;
+    margin: 5px 5px 0px 5px;
     width: 80px;
     height: 80px;
     font-size: 40px;
     text-align: center;
     color: white;
-    caret-color: #707070; 
+    caret-color: #707070;
     border-radius: 15%;
     border: 1px;
     outline: none;
 }
 
-    #ENTER {
-        width: 70px;
-    }
+#ENTER {
+    width: 70px;
+}
 
-    #BACKSPACE {
-        width: 60px;
-    }
+#BACKSPACE {
+    width: 60px;
+}
 
 
 
 .myToast {
-  color: white;
-  border-radius: 20px 20px 20px 20px ;
-  width: 300px;
-  height: auto;
+    color: white;
+    border-radius: 20px 20px 20px 20px;
+    padding: 10px;
+    width: fit-content;
+    height: auto;
+    transform: translate(-50%, 0%);
+    position: fixed;
+    left: 50%;
+    top: 20%;
 
-  padding-top: 10px
+    
 }
 
 .myToast.show {
+
 }
 
-#not5word {
+#less5Word {
+    background: orange;
+}
+#notWord {
+    background: orange;
+}
+#incorrect {
     background: red;
+}
+#correct {
+    background: green;
 }

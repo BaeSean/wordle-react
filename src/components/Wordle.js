@@ -193,11 +193,13 @@ const Wordle = () => {
     const isCorret = async () => {
         if (word === question) {
             console.log("정답");
+            handleToast(3);
             checkAnswer();
             handleTagColor();
             handleEndGame();
         }
         else if (word.length < wordCount) {
+            handleToast(2);
             console.log("5글자 단어 필요");
         }
         else {
@@ -205,6 +207,7 @@ const Wordle = () => {
 
             if (wordCheck) {
                 console.log("XXX");
+                handleToast(0);
                 checkAnswer();
                 handleTagColor();
 
@@ -219,6 +222,7 @@ const Wordle = () => {
             }
             else {
                 console.log("단어가 아님!")
+                handleToast(1);
             }
         }
     }
@@ -233,7 +237,6 @@ const Wordle = () => {
                 answerArr[i] = 2;
             }
         }
-
         //out 체크
         for (let i = 0; i < wordCount; i++) {
             if (answerArr[i] !== 2) {
@@ -250,7 +253,6 @@ const Wordle = () => {
                 }
             }
         }
-
         //ball 체크
         for (let i = 0; i < wordCount; i++) {
             if (!(answerArr[i] >= 0)) {
@@ -295,6 +297,32 @@ const Wordle = () => {
     }, [step, refIndex])
 
 
+    const handleToast = (errCode) => {
+        if (errCode === 0) {
+            $("#incorrect").fadeIn(300);
+            setTimeout(() => {
+                $("#incorrect").fadeOut(300);
+            }, 1000)
+        }
+        else if(errCode === 1){
+            $("#notWord").fadeIn(300);
+            setTimeout(() => {
+                $("#notWord").fadeOut(300);
+            }, 1000)
+        }
+        else if(errCode === 2){
+            $("#less5Word").fadeIn(300);
+            setTimeout(() => {
+                $("#less5Word").fadeOut(300);
+            }, 1000)
+        }
+        else if(errCode === 3){
+            $("#correct").fadeIn(300);
+            setTimeout(() => {
+                $("#correct").fadeOut(300);
+            }, 1000)
+        }
+    }
 
     //rgb to hexCode
     const rgbToHex = (rgbType) => {
@@ -376,7 +404,18 @@ const Wordle = () => {
             <input type="text" id="nameInput" placeholder="Your name!" ref={nameInput} />
 
 
-         
+            <div class="myToast toast" id="less5Word">
+                Less than 5 word
+            </div>
+            <div class="myToast toast" id="notWord">
+                This is not a Word
+            </div>
+            <div class="myToast toast" id="incorrect">
+                Incorrect!
+            </div>
+            <div class="myToast toast" id="correct">
+                CORRECT!
+            </div>
 
         </div>
     );
