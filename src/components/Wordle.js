@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import $ from "jquery"
+import axios from "axios";
+
 import 'bootstrap/dist/css/bootstrap.css';
 import "../style.css"
 
@@ -29,25 +31,23 @@ const Wordle = () => {
     const onChange = (e) => {
         e.target.value = e.target.value.replace(/[^A-Za-z]/ig, '');
     }
-
     const onFocus = () => {
         if (endGame)
             nameInput.current.focus();
         else
             wordInput.current[refIndex].focus();
     }
-    const onFocus_1 = () => {
+    const onFocusBack = () => {
         if (endGame)
             nameInput.current.focus();
         else {
             if (refIndex === 0)
                 setTimeout(function () { wordInput.current[0].focus(); }, 0.1);
-                //front의 focus가 안바껴서 timeout 사용...
+            //front의 focus가 안바껴서 timeout 사용...
             else
                 wordInput.current[refIndex - 1].focus();
         }
     }
-
     const onReset = () => {
         setWord("");
     }
@@ -71,7 +71,7 @@ const Wordle = () => {
                 onFocus();
 
                 if (pressedKeyCodeSum === 215)
-                    onFocus_1();
+                    onFocusBack();
 
                 return;
             }
@@ -102,7 +102,6 @@ const Wordle = () => {
                 $("#input" + inputIndex).val("");
 
             }
-
         }
         else if (pressedKey === "ENTER") {
             isCorret();
@@ -121,7 +120,7 @@ const Wordle = () => {
         }
     }
 
-//Keyboard button click
+    //Keyboard button click
     const handleClick = (event) => {
         event.preventDefault();
         const clickedBtn = { key: event.target.id }
@@ -144,7 +143,7 @@ const Wordle = () => {
         }
     }
 
-//input + button tag color change
+    //input + button tag color change
     const handleTagColor = () => {
         answerArr.map((color, index) => {
             let inputIndex = step * wordCount + index;
@@ -191,7 +190,7 @@ const Wordle = () => {
     }
 
 
-    const isCorret = () => {
+    const isCorret = async () => {
         if (word === question) {
             console.log("정답");
             checkAnswer();
@@ -202,17 +201,24 @@ const Wordle = () => {
             console.log("5글자 단어 필요");
         }
         else {
-            console.log("XXX");
-            checkAnswer();
-            handleTagColor();
+            let wordCheck = await isWordInDic();
 
-            if (step >= stepCount - 1) {
-                console.log("종료")
-                handleEndGame();
+            if (wordCheck) {
+                console.log("XXX");
+                checkAnswer();
+                handleTagColor();
+
+                if (step >= stepCount - 1) {
+                    console.log("종료")
+                    handleEndGame();
+                }
+                else {
+                    setStep(step + 1);
+                    onReset();
+                }
             }
             else {
-                setStep(step + 1);
-                onReset();
+                console.log("단어가 아님!")
             }
         }
     }
@@ -255,20 +261,42 @@ const Wordle = () => {
     }
 
 
-    useEffect(() => {
-        setQuestion("UUUQQ");
-        wordInput.current[refIndex].focus();
+    const generateQuestion = async () => {
+        try {
+            let dicWord = await axios.get('https://random-word-api.herokuapp.com/word?length=' + wordCount)
+            setQuestion(dicWord.data[0].toUpperCase())
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
 
-        console.log("init")
+    const isWordInDic = async () => {
+        try {
+            await axios.get('https://api.dictionaryapi.dev/api/v2/entries/en/' + word)
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    useEffect(() => {
+        wordInput.current[refIndex].focus();
+        generateQuestion();
     }, []);
+
+    useEffect(() => {
+        console.log(question)
+    }, [question])
 
     useEffect(() => {
         console.log(step, char, word, refIndex);
         wordInput.current[refIndex].focus();
-
     }, [step, refIndex])
 
-//rgb to hexCode
+
+
+    //rgb to hexCode
     const rgbToHex = (rgbType) => {
         var rgb = rgbType.replace(/[^%,.\d]/g, "").split(",");
 
@@ -346,6 +374,9 @@ const Wordle = () => {
             </div>
 
             <input type="text" id="nameInput" placeholder="Your name!" ref={nameInput} />
+
+
+         
 
         </div>
     );
