@@ -7,7 +7,7 @@ import Wordle2 from "./Wordle2.js";
 function App() {
   return (
     <>
-      <Navigator />
+      {/* <Navigator /> */}
       <Wordle />
       {/* <Wordle2 /> */}
     </>
