@@ -184,7 +184,7 @@ const Wordle = () => {
                 else
                     buttonStyle = { backgroundColor: targetColor };
             }
-            console.log(answerArr)
+            // console.log(answerArr)
             //Input tag Color
             $("#input" + inputIndex).css(inputStyle);
             //Button tag color
@@ -388,7 +388,7 @@ const Wordle = () => {
 
     useEffect(() => {
         // console.log(step, char, word, refIndex);
-        wordInput.current[refIndex].focus();
+        // wordInput.current[refIndex].focus();
     }, [step, refIndex])
 
 
@@ -434,7 +434,7 @@ const Wordle = () => {
                             return (
                                 <>
                                     {(n % wordCount > 0 && n !== 0) ? null : <p />}
-                                    <input key={index} onInput={onChange} style={inputStyle} id={inputId} type="text" className="wordInput" maxLength="1" onKeyDown={handleKeyDown} ref={el => (wordInput.current[n] = el)} />
+                                    <input key={index} onInput={onChange} style={inputStyle} id={inputId} type="text" className="wordInput" maxLength="1" onKeyDown={handleKeyDown} inputmode="none" ref={el => (wordInput.current[n] = el)} />
                                 </>
                             )
                         })
