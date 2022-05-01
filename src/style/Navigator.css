@@ -1,0 +1,13 @@
+button {
+  width: 32px;
+  height: 32px;
+  margin: 0px;
+  padding: 0px;
+  
+}
+
+img {
+background-size: contain;
+  object-fit: cover;
+
+}

@@ -4,14 +4,14 @@ import axios from "axios";
 
 import Modal from "./Modal.js";
 import 'bootstrap/dist/css/bootstrap.css';
-import "../style.css"
+import "../style/Wordle.css"
 
 
 const Wordle = () => {
     //base data
     const [question, setQuestion] = useState("");
     const [wordCount, setWordCount] = useState(5);
-    const [stepCount, setStepCount] = useState(3);
+    const [stepCount, setStepCount] = useState(5);
     const [inputArr, setInputArr] = useState(Array.from({ length: wordCount * stepCount }, (n, i) => i));
     const [answerArr, setAnswerArr] = useState(new Array(wordCount));
 
@@ -26,7 +26,7 @@ const Wordle = () => {
     const [refIndex, setRefIndex] = useState(0);
     const wordInput = useRef([]);
     const nameInput = useRef();
-    let endGame = false;
+    const [endGame, setEndGame] = useState(false);
 
     //Modal state
     const [modalOpen, setModalOpen] = useState(false);
@@ -52,13 +52,15 @@ const Wordle = () => {
                 wordInput.current[refIndex - 1].focus();
         }
     }
+
     const onReset = () => {
-        endGame = false;
+        setEndGame(false);
         setInputArr(Array.from({ length: wordCount * stepCount }, (n, i) => i))
         setAnswerArr(new Array(wordCount));
         setStep(0);
         setRefIndex(0);
         setWord("");
+        $("#nameInput").val("");
     }
 
     //Pysical keyboard press
@@ -78,7 +80,7 @@ const Wordle = () => {
         if (90 < pressedKeyCodeSum || pressedKeyCodeSum < 65) {
             if (pressedKey !== "BACKSPACE" && pressedKey !== "ENTER") {
                 onFocus();
-                if (pressedKeyCodeSum === 215)
+                if (pressedKeyCodeSum === 215)  //Press TAB
                     onFocusBack();
 
                 handleToast(-1);
@@ -264,7 +266,7 @@ const Wordle = () => {
     //After game end
     const gameEnded = () => {
         nameInput.current.focus();
-        endGame = true;
+        setEndGame(true);
 
         $("#nameInput").val(question);
     }
@@ -286,7 +288,7 @@ const Wordle = () => {
             let wordCheck = await isWordInDic();
 
             if (wordCheck) {
-                console.log("XXX");
+                console.log("오답");
                 handleToast(0);
                 checkAnswer();
                 handleTagColor();
@@ -478,12 +480,12 @@ const Wordle = () => {
 
                 <footer>
                     <label>Answer : </label>
-                    <input type="text" class="btn" id="nameInput" placeholder="？？？？？" ref={nameInput} />
+                    <input autocomplete="off" type="text" class="btn" id="nameInput" placeholder="？？？？？" ref={nameInput} />
                     <button type="button" class="btn btn-primary" id="modalButton" onClick={openModal}>Setting</button>
                 </footer>
 
                 <div class="myToast toast" id="less5Word">
-                    Less than 5 word
+                    Less than {wordCount} word
                 </div>
                 <div class="myToast toast" id="notWord">
                     This is not a Word

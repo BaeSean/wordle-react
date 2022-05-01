@@ -11,6 +11,7 @@
 
 .modal button {
     outline: none;
+    width: auto;
     cursor: pointer;
     border: 0;
 }
